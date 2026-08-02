@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import BigInteger, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import BaseModel
@@ -8,6 +8,7 @@ class PullRequest(BaseModel):
     __tablename__ = "pull_requests"
 
     github_pr_id: Mapped[int] = mapped_column(
+        BigInteger,
         unique=True,
         nullable=False
     )
@@ -47,7 +48,8 @@ class PullRequest(BaseModel):
     )
 
     repository_id: Mapped[int] = mapped_column(
-        ForeignKey("repositories.id")
+        ForeignKey("repositories.id"),
+        nullable=False
     )
 
     repository = relationship(
