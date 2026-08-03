@@ -1,11 +1,13 @@
 import asyncio
 
 import app.models
-from app.models.pull_request import PullRequest
+
 from app.db.database import SessionLocal
 from app.github.client import GitHubClient
-from app.models.webhook_event import WebhookEvent
+from app.models.pull_request import PullRequest
+from app.models.pull_request_file import PullRequestFile
 from app.models.repository import Repository
+from app.models.webhook_event import WebhookEvent
 
 
 def process_webhook_event(webhook_event_id: int):
@@ -29,15 +31,13 @@ def process_webhook_event(webhook_event_id: int):
             f"{webhook_event.id}: {webhook_event.event_type}"
         )
 
-        # -------------------------------
+        # --------------------------------
         # Pull Request Events
-        # -------------------------------
+        # --------------------------------
 
         if webhook_event.event_type == "pull_request":
 
             payload = webhook_event.payload
-
-            action = payload["action"]
 
             pr_number = payload["pull_request"]["number"]
 
@@ -62,6 +62,14 @@ def process_webhook_event(webhook_event_id: int):
                 )
             )
 
+            pr_files = asyncio.run(
+                github.get_pull_request_files(
+                    owner=repository.owner_name,
+                    repository=repository.name,
+                    pull_number=pr_number
+                )
+            )
+
             existing_pr = (
                 db.query(PullRequest)
                 .filter(
@@ -79,11 +87,14 @@ def process_webhook_event(webhook_event_id: int):
                 existing_pr.base_branch = pr_data["base"]["ref"]
                 existing_pr.head_branch = pr_data["head"]["ref"]
 
+                pull_request = existing_pr
+
                 print(
                     f"Updated PR #{existing_pr.pr_number}"
                 )
 
             else:
+
                 new_pr = PullRequest(
                     github_pr_id=pr_data["id"],
                     pr_number=pr_data["number"],
@@ -95,11 +106,52 @@ def process_webhook_event(webhook_event_id: int):
                     head_branch=pr_data["head"]["ref"],
                     repository_id=repository.id,
                 )
+
                 db.add(new_pr)
+                db.flush()
+
+                pull_request = new_pr
 
                 print(
                     f"Stored PR #{new_pr.pr_number}"
                 )
+
+            for file in pr_files:
+
+                existing_file = (
+                    db.query(PullRequestFile)
+                    .filter(
+                        PullRequestFile.pull_request_id == pull_request.id,
+                        PullRequestFile.filename == file["filename"]
+                    )
+                    .first()
+                )
+
+                if existing_file:
+
+                    existing_file.status = file["status"]
+                    existing_file.additions = file["additions"]
+                    existing_file.deletions = file["deletions"]
+                    existing_file.changes = file["changes"]
+                    existing_file.patch = file.get("patch")
+
+                else:
+
+                    db.add(
+                        PullRequestFile(
+                            filename=file["filename"],
+                            status=file["status"],
+                            additions=file["additions"],
+                            deletions=file["deletions"],
+                            changes=file["changes"],
+                            patch=file.get("patch"),
+                            pull_request_id=pull_request.id,
+                        )
+                    )
+
+            print(
+                f"Stored {len(pr_files)} changed files"
+            )
 
         webhook_event.status = "processed"
 
