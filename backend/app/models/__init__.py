@@ -4,3 +4,4 @@ from app.models.pull_request import PullRequest
 from app.models.webhook_event import WebhookEvent
 from app.models.analysis import Analysis
 from app.models.feedback import Feedback
+from app.models.pull_request_file import PullRequestFile

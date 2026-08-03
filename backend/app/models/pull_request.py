@@ -62,3 +62,8 @@ class PullRequest(BaseModel):
         back_populates="pull_request",
         uselist=False
     )
+    files = relationship(
+        "PullRequestFile",
+        back_populates="pull_request",
+        cascade="all, delete-orphan"
+    )
