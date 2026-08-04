@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     GITHUB_WEBHOOK_SECRET: str
+    GEMINI_API_KEY: str
+
 
     class Config:
         env_file = ".env"

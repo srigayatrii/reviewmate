@@ -80,3 +80,22 @@ class GitHubClient:
         response.raise_for_status()
 
         return response.json()
+
+    async def create_pull_request_comment(
+            self,
+            owner: str,
+            repository: str,
+            pull_number: int,
+            body: str,
+    ):
+        async with httpx.AsyncClient() as client:
+
+            response = await client.post(
+                f"{self.BASE_URL}/repos/{owner}/{repository}/issues/{pull_number}/comments",
+                headers=self.headers,
+                json={"body": body},
+            )
+
+        response.raise_for_status()
+
+        return response.json()

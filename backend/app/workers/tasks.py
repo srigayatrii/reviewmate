@@ -1,7 +1,8 @@
 import asyncio
 
 import app.models
-
+from app.ai.client import AIClient
+from app.models.analysis import Analysis
 from app.db.database import SessionLocal
 from app.github.client import GitHubClient
 from app.models.pull_request import PullRequest
@@ -148,6 +149,59 @@ def process_webhook_event(webhook_event_id: int):
                             pull_request_id=pull_request.id,
                         )
                     )
+                patch = file.get("patch")
+                if patch:
+                    ai = AIClient()
+                    analysis = asyncio.run(
+                        ai.review_patch(patch)
+                    )
+                    recommendations = "\n\n".join(
+                        issue["suggestion"]
+                        for issue in analysis["issues"]
+                    )
+                    existing_analysis = (
+                        db.query(Analysis)
+                        .filter(
+                            Analysis.pull_request_id == pull_request.id
+                        )
+                        .first()
+                    )
+                    if existing_analysis:
+                        existing_analysis.summary = analysis["summary"]
+                        existing_analysis.risk_score = analysis["severity"]
+                        existing_analysis.recommendations = recommendations
+                        existing_analysis.status = "completed"
+                    else:
+                        db.add(
+                            Analysis(
+                                summary=analysis["summary"],
+                                risk_score=analysis["severity"],
+                                recommendations=recommendations,
+                                status="completed",
+                                missing_tests=False,
+                                description_mismatch=False,
+                                pull_request_id=pull_request.id,
+                            )
+                        )
+                    comment = f"""
+                    ## 🤖 ReviewMate AI Review
+                    ### Summary
+                    {analysis["summary"]}
+                    ### Risk
+                    **{analysis["severity"].upper()}**
+                    ### Recommendations
+                    {recommendations}
+                    """
+                    asyncio.run(
+                        github.create_pull_request_comment(
+                            owner=repository.owner_name,
+                            repository=repository.name,
+                            pull_number=pr_number,
+                            body=comment,
+                        )
+                    )
+                    print("Posted AI review comment to GitHub")
+
 
             print(
                 f"Stored {len(pr_files)} changed files"
