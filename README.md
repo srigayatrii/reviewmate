@@ -1,0 +1,1 @@
+- Added ReviewMate architecture documentation
