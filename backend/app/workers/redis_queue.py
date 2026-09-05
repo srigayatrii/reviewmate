@@ -1,14 +1,15 @@
 from redis import Redis
 from rq import Queue
 
+from app.core.config import settings
 
-redis_connection = Redis(
-    host="redis",
-    port=6379,
-    decode_responses=False
+
+redis_connection = Redis.from_url(
+    settings.REDIS_URL,
+    decode_responses=False,
 )
 
 queue = Queue(
     "reviewmate",
-    connection=redis_connection
+    connection=redis_connection,
 )

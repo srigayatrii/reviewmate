@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.models.analysis import Analysis
 from app.models.pull_request import PullRequest
-from app.workers.redis_queue import queue
 from app.workers.review_worker import analyze_pull_request
 
 
@@ -75,13 +74,12 @@ def analyze_pull_request_route(
             detail="Pull request not found",
         )
 
-    job = queue.enqueue(
-        analyze_pull_request,
-        pull_request_id,
-    )
+    result = analyze_pull_request(pull_request_id)
 
     return {
-        "message": "Pull request analysis queued",
-        "job_id": job.id,
+        "message": "Pull request analysis completed",
         "pull_request_id": pull_request_id,
+        "analysis_id": result["analysis_id"],
+        "status": result["status"],
+        "risk_score": result["risk_score"],
     }
