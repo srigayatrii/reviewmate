@@ -257,4 +257,15 @@ ReviewMate analyzes pull request changes and generates:
 - Description mismatch indication
 
 The generated review is stored in PostgreSQL and posted back to the GitHub pull request.
+---
 
+## Security
+
+ReviewMate uses:
+
+- GitHub OAuth for authentication
+- JWT-based authorization
+- HMAC SHA-256 for GitHub webhook verification
+- Environment variables for sensitive configuration
+
+API keys and secrets are kept on the backend and are not exposed through the frontend.
