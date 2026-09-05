@@ -80,3 +80,59 @@ The project also uses Redis and RQ for background processing so that AI analysis
 - Redis container
 - Background worker container
 - Consistent local development environment
+---
+
+## How It Works
+
+```text
+                    ┌─────────────────────┐
+                    │       GitHub        │
+                    │  Repository / PR    │
+                    └──────────┬──────────┘
+                               │
+                        Pull Request Event
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   GitHub Webhook    │
+                    │ HMAC Verification   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      FastAPI        │
+                    │      Backend        │
+                    └──────────┬──────────┘
+                               │
+                         Queue Job
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     Redis + RQ      │
+                    │   Background Queue  │
+                    └──────────┬──────────┘
+                               │
+                         Worker picks job
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   GitHub Client     │
+                    │ Fetch PR changes    │
+                    └──────────┬──────────┘
+                               │
+                          Code Patch
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     Gemini AI       │
+                    │   Code Analysis     │
+                    └──────────┬──────────┘
+                               │
+                        Review Result
+                               │
+                    ┌──────────┴──────────┐
+                    ▼                     ▼
+          ┌──────────────────┐   ┌──────────────────┐
+          │   PostgreSQL     │   │      GitHub      │
+          │ Store Analysis   │   │ Post PR Comment  │
+          └──────────────────┘   └──────────────────┘
