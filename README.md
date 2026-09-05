@@ -244,4 +244,17 @@ FastAPI Swagger documentation is available at:
 ```text
 http://localhost:8000/docs
 ```
+---
+
+## AI Review Output
+
+ReviewMate analyzes pull request changes and generates:
+
+- Summary
+- Risk score
+- Recommendations
+- Missing test indication
+- Description mismatch indication
+
+The generated review is stored in PostgreSQL and posted back to the GitHub pull request.
 
