@@ -23,3 +23,60 @@ ReviewMate automates the first level of review by:
 - Automatically posting the review back to the GitHub pull request
 
 The project also uses Redis and RQ for background processing so that AI analysis can run asynchronously instead of blocking the API request.
+
+---
+
+## Key Features
+
+### 🔐 GitHub OAuth Authentication
+
+- GitHub OAuth login
+- Secure user authentication
+- JWT-based authorization
+- Protected API endpoints
+
+### 📦 Repository Management
+
+- Synchronize repositories from GitHub
+- View connected repositories
+- Connect repositories to ReviewMate
+- Disconnect repositories
+
+### 🔔 GitHub Webhooks
+
+- Receives GitHub repository events
+- Handles pull request events
+- Verifies webhook requests using HMAC SHA-256 signatures
+- Stores webhook events for processing and tracking
+
+### 🤖 AI-Powered Code Review
+
+- Fetches changed files from GitHub pull requests
+- Extracts code patches
+- Sends changes to Gemini AI
+- Generates structured review feedback
+- Produces a risk score
+- Provides recommendations
+- Checks for missing tests
+- Posts the generated review back to GitHub
+
+### ⚡ Background Processing
+
+- Redis used as the message broker
+- RQ used for background job processing
+- Pull request analysis runs through a worker
+- Analysis status is tracked in the database
+
+### 🗄️ Database
+
+- PostgreSQL for persistent application data
+- SQLAlchemy ORM
+- Alembic migrations
+
+### 🐳 Docker
+
+- Backend containerization
+- PostgreSQL container
+- Redis container
+- Background worker container
+- Consistent local development environment
