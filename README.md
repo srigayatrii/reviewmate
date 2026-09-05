@@ -170,3 +170,78 @@ The project also uses Redis and RQ for background processing so that AI analysis
 ### Version Control
 - Git
 - GitHub
+---
+
+## Running Locally
+
+### Prerequisites
+
+Make sure you have:
+
+- Python 3.10+
+- Node.js and npm
+- Docker Desktop
+- GitHub account
+- GitHub OAuth application
+- Gemini API key
+
+### 1. Clone the Repository
+
+From your terminal:
+
+```bash
+git clone https://github.com/srigayatrii/reviewmate.git
+cd reviewmate
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env` file with the required configuration:
+
+```env
+DATABASE_URL=your_database_url
+
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+GITHUB_WEBHOOK_SECRET=your_webhook_secret
+
+GEMINI_API_KEY=your_gemini_api_key
+
+JWT_SECRET_KEY=your_jwt_secret
+```
+
+Do not commit the `.env` file or expose API keys and secrets.
+
+### 3. Start the Backend Services
+
+From the project root:
+
+```bash
+docker compose up -d
+```
+
+This starts:
+
+* FastAPI backend
+* PostgreSQL
+* Redis
+* RQ worker
+
+### 4. Start the Frontend
+
+From the `frontend` directory:
+
+```bash
+npm install
+npm run dev
+```
+
+### 5. API Documentation
+
+FastAPI Swagger documentation is available at:
+
+```text
+http://localhost:8000/docs
+```
+
