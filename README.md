@@ -136,3 +136,37 @@ The project also uses Redis and RQ for background processing so that AI analysis
           │   PostgreSQL     │   │      GitHub      │
           │ Store Analysis   │   │ Post PR Comment  │
           └──────────────────┘   └──────────────────┘
+---
+
+## Tech Stack
+
+### Backend
+- Python
+- FastAPI
+
+### Database
+- PostgreSQL
+- SQLAlchemy
+- Alembic
+
+### Authentication
+- GitHub OAuth
+- JWT
+
+### Background Processing
+- Redis
+- RQ
+
+### AI
+- Google Gemini API
+
+### Frontend
+- React
+
+### Infrastructure
+- Docker
+- Docker Compose
+
+### Version Control
+- Git
+- GitHub
